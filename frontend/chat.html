@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteLLM</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-surface: #121217;
+            --bg-surface-hover: #1c1c24;
+            --border-subtle: #272730;
+            --text-primary: #ededed;
+            --text-secondary: #a1a1aa;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --user-msg-bg: #27272a;
+            --system-green: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            background-color: var(--bg-base);
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .header-brand h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-brand span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logout-btn:hover {
+            color: var(--text-primary);
+        }
+
+        /* Main Chat Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            scroll-behavior: smooth;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0;
+            gap: 32px;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: auto 0;
+            max-width: 600px;
+            align-self: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-screen h2 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            letter-spacing: -0.03em;
+        }
+
+        .welcome-screen p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Messages */
+        .message-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .message-row.user {
+            justify-content: flex-end;
+        }
+
+        .message-row.ai {
+            justify-content: flex-start;
+        }
+
+        .message {
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .message.user {
+            background-color: var(--user-msg-bg);
+            padding: 14px 20px;
+            border-radius: 16px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai {
+            padding: 10px 0;
+            width: 100%;
+        }
+
+        .ai-model-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-model-label i.bx-check {
+            color: var(--system-green);
+            font-size: 1rem;
+        }
+
+        .response-content {
+            color: #ededed;
+            line-height: 1.65;
+            font-size: 0.95rem;
+        }
+
+        .response-content pre {
+            background-color: #121217;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.88rem;
+            color: #e4e4e7;
+        }
+
+        .response-content code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.88rem;
+        }
+
+        .response-content .inline-code {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #c7d2fe;
+            font-size: 0.85rem;
+        }
+
+        .response-content .formatted-heading {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            color: #f4f4f5;
+        }
+
+        .response-content strong {
+            color: #fafafa;
+            font-weight: 600;
+        }
+
+        /* Attachment Preview */
+        .attachment-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            width: max-content;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .attachment-preview i {
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .attachment-preview .filename {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .attachment-preview .remove-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        
+        .attachment-preview .remove-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Routing Animation Component */
+        .routing-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .routing-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .routing-step.active {
+            color: var(--text-primary);
+        }
+        
+        .routing-step.done {
+            color: var(--text-secondary);
+        }
+
+        .routing-icon {
+            width: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Carousel Slot Machine */
+        .carousel-wrapper {
+            background: #000;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            height: 36px;
+            overflow: hidden;
+            position: relative;
+            margin-left: 32px;
+            display: none;
+            width: 180px;
+        }
+
+        .carousel-wrapper.show {
+            display: block;
+        }
+
+        /* Mask for fade effect on top and bottom of carousel */
+        .carousel-wrapper::before, .carousel-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 10px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .carousel-wrapper::before {
+            top: 0;
+            background: linear-gradient(to bottom, #000, transparent);
+        }
+        .carousel-wrapper::after {
+            bottom: 0;
+            background: linear-gradient(to top, #000, transparent);
+        }
+
+        .carousel-track {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0s linear;
+        }
+
+        .carousel-item {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* Input Composer */
+        .input-container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 20px 20px 30px;
+            background-color: var(--bg-base);
+            flex-shrink: 0;
+        }
+
+        .composer {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 16px;
+            transition: border-color 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .composer:focus-within {
+            border-color: #4a4a5a;
+        }
+
+        .composer textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            padding: 8px 0;
+            min-height: 44px;
+            max-height: 200px;
+            width: 100%;
+        }
+        
+        .composer textarea::placeholder {
+            color: #555565;
+        }
+
+        .composer-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+
+        .action-btn:hover {
+            background-color: var(--bg-surface-hover);
+            color: var(--text-primary);
+        }
+
+        .send-btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 1.1rem;
+        }
+
+        .send-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .send-btn:disabled {
+            background-color: var(--border-subtle);
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Error state */
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-brand span { display: none; }
+            .message { max-width: 95%; }
+            .chat-container { padding: 20px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-brand">
+            <h1>RouteLLM</h1>
+            <span>The right model for every question.</span>
+        </div>
+        <div class="header-actions" style="display: flex; gap: 16px; align-items: center;">
+            <button class="logout-btn" onclick="viewHistory()" title="View History">
+                <i class='bx bx-history'></i> History
+            </button>
+            <button class="logout-btn" onclick="clearHistory()" title="Clear History" style="color: #ef4444;">
+                <i class='bx bx-trash'></i> Clear
+            </button>
+            <button class="logout-btn" onclick="window.location.href='/'" title="Logout">
+                <i class='bx bx-log-out'></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <main id="mainScroll">
+        <div class="chat-container" id="chatBox">
+            <div class="welcome-screen" id="welcomeScreen">
+                <h2>Ask anything.<br>We'll choose the right model.</h2>
+                <p>Different questions are better suited to different AI models.</p>
+                <p>RouteLLM automatically routes your request to the model that fits it best — so you don't have to think about which AI to use.</p>
+                <div style="margin-top: 40px; font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; letter-spacing: 0.05em; text-transform: uppercase;">
+                    <i class='bx bx-code-alt' style="font-size: 1.1rem; color: var(--accent);"></i>
+                    Engineered by V. Phani Kumar
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; width: 100%; max-width: 800px; height: 80vh; display: flex; flex-direction: column;">
+            <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-weight: 600; font-size: 1.2rem;">Conversation History</h3>
+                <button onclick="document.getElementById('historyModal').classList.add('hidden')" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;"><i class='bx bx-x'></i></button>
+            </div>
+            <div id="historyContent" style="padding: 24px; overflow-y: auto; flex: 1; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary);">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="composer">
+            <div id="attachmentContainer" class="hidden"></div>
+            <textarea id="userInput" placeholder="Ask RouteLLM anything..." rows="1"></textarea>
+            
+            <div class="composer-toolbar">
+                <div class="media-actions">
+                    <button class="action-btn" onclick="document.getElementById('imageInput').click()" title="Upload Image">
+                        <i class='bx bx-image'></i>
+                    </button>
+                    <button class="action-btn" onclick="document.getElementById('fileInput').click()" title="Upload Document">
+                        <i class='bx bx-file-blank'></i>
+                    </button>
+                </div>
+                
+                <input type="file" id="imageInput" accept="image/*">
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
+
+                <button class="send-btn" id="sendBtn" title="Send (Enter)">
+                    <i class='bx bx-up-arrow-alt'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const mainScroll = document.getElementById('mainScroll');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Keyboard submit (Enter to send, Shift+Enter for newline)
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function scrollToBottom() {
+            mainScroll.scrollTop = mainScroll.scrollHeight;
+        }
+
+        function removeWelcomeScreen() {
+            if (welcomeScreen && !welcomeScreen.classList.contains('hidden')) {
+                welcomeScreen.classList.add('hidden');
+            }
+        }
+
+        function appendUserMessage(text) {
+            removeWelcomeScreen();
+            const row = document.createElement('div');
+            row.className = 'message-row user';
+            
+            const msg = document.createElement('div');
+            msg.className = 'message user';
+            msg.textContent = text;
+            
+            row.appendChild(msg);
+            chatBox.appendChild(row);
+            scrollToBottom();
+        }
+
+        // --- The RouteLLM Lucky Draw Animation ---
+        
+        // Base models list available for routing
+        const availableModels = [
+            "GPT-OSS 120B", "QWEN-CODING", "CLAUDE", "GEMMA-VISION", 
+            "MISTRAL-OCR", "LLAMA", "WHISPER", "WEB"
+        ];
+
+        class RoutingAnimation {
+            constructor() {
+                this.id = 'route-' + Date.now();
+                this.row = document.createElement('div');
+                this.row.className = 'message-row ai';
+                this.row.id = this.id;
+                this.isAnimating = false;
+                
+                // Build the DOM
+                this.row.innerHTML = `
+                    <div class="routing-container" id="container-${this.id}">
+                        <div class="routing-step active" id="step1-${this.id}">
+                            <div class="routing-icon"><i class='bx bx-loader-alt bx-spin'></i></div>
+                            Understanding your question
+                        </div>
+                        
+                        <div class="routing-step" id="step2-${this.id}">
+                            <div class="routing-icon"><i class='bx bx-git-merge'></i></div>
+                            Choosing the best model
+                        </div>
+                        
+                        <div class="carousel-wrapper" id="carousel-${this.id}">
+                            <div class="carousel-track" id="track-${this.id}"></div>
+                        </div>
+                        
+                        <div class="routing-step hidden" id="step3-${this.id}" style="color: var(--text-primary); font-weight: 500;">
+                            <div class="routing-icon"><i class='bx bx-check' style="color: var(--system-green); font-size: 1.2rem;"></i></div>
+                            <span>Selected: <span id="selected-model-text-${this.id}"></span></span>
+                        </div>
+                    </div>
+                `;
+                
+                chatBox.appendChild(this.row);
+                scrollToBottom();
+                
+                this.track = document.getElementById(`track-${this.id}`);
+                this.populateCarousel();
+            }
+
+            populateCarousel() {
+                // Generate a long list of repeating models for the spin effect
+                let html = '';
+                // We create about 40 items so we can spin for a while
+                for(let i=0; i<8; i++) {
+                    // Randomize order a bit for visual variety
+                    let shuffled = [...availableModels].sort(() => 0.5 - Math.random());
+                    shuffled.forEach(m => {
+                        html += `<div class="carousel-item">${m}</div>`;
+                    });
+                }
+                this.track.innerHTML = html;
+                this.itemsCount = 8 * availableModels.length;
+                this.itemHeight = 36; 
+            }
+
+            startSpinning() {
+                document.getElementById(`step1-${this.id}`).classList.replace('active', 'done');
+                document.getElementById(`step1-${this.id}`).querySelector('i').className = 'bx bx-check';
+                
+                document.getElementById(`step2-${this.id}`).classList.add('active');
+                document.getElementById(`step2-${this.id}`).querySelector('i').className = 'bx bx-loader-alt bx-spin';
+                
+                document.getElementById(`carousel-${this.id}`).classList.add('show');
+                
+                this.isAnimating = true;
+                this.currentY = 0;
+                
+                // Infinite spin loop using requestAnimationFrame
+                const spinSpeed = 15; // pixels per frame
+                
+                const spin = () => {
+                    if(!this.isAnimating) return;
+                    this.currentY -= spinSpeed;
+                    
+                    // reset if we scrolled too far to keep it infinite
+                    if (Math.abs(this.currentY) > (this.itemsCount - 10) * this.itemHeight) {
+                        this.currentY = 0;
+                    }
+                    
+                    this.track.style.transform = `translateY(${this.currentY}px)`;
+                    requestAnimationFrame(spin);
+                };
+                
+                requestAnimationFrame(spin);
+            }
+
+            stopAndReveal(actualModel, answerText) {
+                // Ensure the actual model exists in our list somewhere at the end to land on
+                // We will append a fresh block of models ensuring actualModel is the 3rd one
+                
+                this.isAnimating = false; // Stop the infinite loop
+                
+                // Append the target sequence at the current offset
+                const targetModelHtml = `<div class="carousel-item">${actualModel}</div>`;
+                const dummyHtml = `<div class="carousel-item">GPTOSS-GENERAL</div>`;
+                
+                // Calculate where we are
+                const currentOffset = Math.abs(this.currentY);
+                
+                // We want to scroll a bit further and stop. 
+                // Let's create a final landing zone.
+                this.track.innerHTML += dummyHtml + dummyHtml + targetModelHtml + dummyHtml + dummyHtml;
+                
+                // New total items
+                const newTotalItems = this.track.children.length;
+                
+                // The target index is newTotalItems - 3 (so it lands in the middle)
+                const targetY = -((newTotalItems - 3) * this.itemHeight);
+                
+                // Apply a CSS transition for the deceleration
+                this.track.style.transition = 'transform 1.2s cubic-bezier(0.1, 0.9, 0.2, 1)';
+                
+                // Force reflow
+                void this.track.offsetWidth;
+                
+                // Move to target
+                this.track.style.transform = `translateY(${targetY}px)`;
+                
+                // Wait for deceleration to finish
+                setTimeout(() => {
+                    // Update steps
+                    document.getElementById(`step2-${this.id}`).classList.replace('active', 'done');
+                    document.getElementById(`step2-${this.id}`).querySelector('i').className = 'bx bx-check';
+                    
+                    document.getElementById(`carousel-${this.id}`).classList.remove('show');
+                    
+                    const step3 = document.getElementById(`step3-${this.id}`);
+                    step3.classList.remove('hidden');
+                    document.getElementById(`selected-model-text-${this.id}`).textContent = actualModel;
+                    
+                    // After a brief moment, transform the whole container into the actual chat response
+                    setTimeout(() => {
+                        this.morphToResponse(actualModel, answerText);
+                    }, 600);
+                    
+                }, 1200);
+            }
+            
+            showError() {
+                this.isAnimating = false;
+                const container = document.getElementById(`container-${this.id}`);
+                container.innerHTML = `
+                    <div class="error-msg">
+                        <strong>Something went wrong</strong><br>
+                        We couldn't route that request right now. Try again.
+                    </div>
+                `;
+                scrollToBottom();
+            }
+
+            morphToResponse(model, answerText) {
+                const row = document.getElementById(this.id);
+                row.innerHTML = `
+                    <div class="message ai">
+                        <div class="ai-model-label">
+                            <i class='bx bx-check'></i> ${model}
+                        </div>
+                        <div class="response-content">${this.formatText(answerText)}</div>
+                    </div>
+                `;
+                scrollToBottom();
+            }
+            
+            // Clean formatter to render code blocks, clean headings, and strip unsightly raw symbols.
+            formatText(text) {
+                if (!text) return '';
+                
+                // Separate code blocks from regular text
+                const parts = text.split(/```/g);
+                let formatted = '';
+                
+                for (let i = 0; i < parts.length; i++) {
+                    if (i % 2 === 1) {
+                        // Inside code block
+                        const codeBlock = parts[i];
+                        const firstNewline = codeBlock.indexOf('\n');
+                        let lang = '';
+                        let code = codeBlock;
+                        if (firstNewline !== -1) {
+                            lang = codeBlock.substring(0, firstNewline).trim();
+                            code = codeBlock.substring(firstNewline + 1);
+                        }
+                        const escapedCode = code
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+                        formatted += `<pre><code>${escapedCode}</code></pre>`;
+                    } else {
+                        // Outside code block
+                        let chunk = parts[i];
+                        
+                        // Escape HTML
+                        chunk = chunk
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+
+                        // Clean markdown heading hashes into clean styled headings
+                        chunk = chunk.replace(/^(?:#{1,6})\s*(.+)$/gm, '<div class="formatted-heading">$1</div>');
+                        
+                        // Convert bold asterisks into strong tags
+                        chunk = chunk.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                        
+                        // Convert bullet asterisks
+                        chunk = chunk.replace(/(?:^|\n)\s*\*\s+(.+)/g, '\n• $1');
+                        
+                        // Strip remaining asterisks
+                        chunk = chunk.replace(/\*([^*\n]+)\*/g, '$1');
+                        chunk = chunk.replace(/\*/g, '');
+
+                        // Inline code backticks
+                        chunk = chunk.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
+
+                        // Convert newlines to <br>
+                        chunk = chunk.replace(/\n/g, '<br>');
+                        chunk = chunk.replace(/(<\/div>)<br>/g, '$1');
+                        
+                        formatted += chunk;
+                    }
+                }
+                
+                return formatted;
+            }
+        }
+
+        // --- Interaction Logic ---
+
+        let currentFile = null;
+        let currentFileType = null;
+
+        function handleFileSelect(fileInput, type) {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            currentFile = file;
+            currentFileType = type;
+
+            const container = document.getElementById('attachmentContainer');
+            let icon = 'bx-file';
+            if (type === 'image') icon = 'bx-image';
+            if (type === 'audio') icon = 'bx-microphone';
+
+            container.innerHTML = `
+                <div class="attachment-preview">
+                    <i class='bx ${icon}'></i>
+                    <span class="filename">${file.name}</span>
+                    <button class="remove-btn" onclick="clearAttachment()" title="Remove attachment">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+            `;
+            container.classList.remove('hidden');
+            
+            fileInput.value = '';
+            userInput.focus();
+        }
+
+        function clearAttachment() {
+            currentFile = null;
+            currentFileType = null;
+            const container = document.getElementById('attachmentContainer');
+            container.innerHTML = '';
+            container.classList.add('hidden');
+        }
+
+        function setInputState(disabled) {
+            userInput.disabled = disabled;
+            sendBtn.disabled = disabled;
+            const removeBtn = document.querySelector('.remove-btn');
+            if(removeBtn) removeBtn.disabled = disabled;
+            
+            if(disabled) {
+                sendBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+            } else {
+                sendBtn.innerHTML = "<i class='bx bx-up-arrow-alt'></i>";
+                userInput.focus();
+            }
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text && !currentFile) return;
+
+            // Prepare the display message
+            if (currentFile) {
+                let typeName = currentFileType.charAt(0).toUpperCase() + currentFileType.slice(1);
+                let msg = `[Attached ${typeName}]: ${currentFile.name}`;
+                if (text) msg += `\n\n${text}`;
+                appendUserMessage(msg);
+            } else {
+                appendUserMessage(text);
+            }
+
+            // Save variables before clearing UI
+            const promptToSend = text;
+            const fileToSend = currentFile;
+            const fileTypeToSend = currentFileType;
+
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            clearAttachment();
+            setInputState(true);
+            
+            const routerAnim = new RoutingAnimation();
+            
+            setTimeout(() => {
+                routerAnim.startSpinning();
+            }, 600);
+
+            try {
+                let response;
+                
+                if (fileToSend) {
+                    const formData = new FormData();
+                    formData.append('file', fileToSend);
+                    formData.append('file_type', fileTypeToSend);
+                    formData.append('prompt', promptToSend); 
+                    
+                    response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: promptToSend })
+                    });
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        routerAnim.stopAndReveal(data.model, data.answer);
+                        setInputState(false);
+                    }, 800); 
+                } else {
+                    routerAnim.showError();
+                    setInputState(false);
+                }
+            } catch (error) {
+                routerAnim.showError();
+                setInputState(false);
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        document.getElementById('imageInput').addEventListener('change', function() { handleFileSelect(this, 'image'); });
+        document.getElementById('fileInput').addEventListener('change', function() { handleFileSelect(this, 'document'); });
+
+        async function viewHistory() {
+            const modal = document.getElementById('historyModal');
+            const content = document.getElementById('historyContent');
+            modal.classList.remove('hidden');
+            content.textContent = 'Loading...';
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    content.textContent = data.history;
+                } else {
+                    const errorMsg = data.message || data.detail || 'Endpoint not found. Did you restart the python server?';
+                    content.textContent = 'Error: ' + errorMsg;
+                }
+            } catch (e) {
+                content.textContent = 'Failed to load history. Is the backend running?';
+            }
+        }
+
+        async function clearHistory() {
+            if(!confirm("Are you sure you want to clear your conversation history?")) return;
+            try {
+                const res = await fetch('/api/history', { method: 'DELETE' });
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    const rows = chatBox.querySelectorAll('.message-row');
+                    rows.forEach(r => r.remove());
+                    welcomeScreen.classList.remove('hidden');
+                    alert("History cleared!");
+                } else {
+                    const errorMsg = data.message || data.detail || 'Endpoint not found. Did you restart the python server?';
+                    alert('Error: ' + errorMsg);
+                }
+            } catch (e) {
+                alert('Failed to clear history. Is the backend running?');
+            }
+        }
+
+    </script>
+</body>
+</html>

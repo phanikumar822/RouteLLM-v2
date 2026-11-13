@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Animated Background Circles -->
+        <div class="circles-wrapper">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+
+        <!-- Auth Container -->
+        <div class="auth-container">
+            <!-- Login Form -->
+            <div class="login-box" id="loginBox">
+                <h2>Login</h2>
+                <p class="subtitle">Welcome back to RouteLLM</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <i class='bx bx-user icon'></i>
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-lock-alt icon'></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        <i class='bx bx-hide show-hide-icon' id="togglePassword"></i>
+                    </div>
+                    <div class="options-group">
+                        <label class="remember">
+                            <input type="checkbox" id="rememberMe"> Remember me
+                        </label>
+                    </div>
+                    <button type="submit" class="sign-in-btn">Sign In</button>
+                    <div class="links">
+                        <p>Don't have an account? <a href="#" id="showSignUp">Sign Up</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="login-box hidden" id="signupBox">
+                <h2>Sign Up</h2>
+                <p class="subtitle">Create your RouteLLM account</p>
+                <form id="signupForm">
+                    <div class="input-group">
+                        <i class='bx bx-user icon'></i>
+                        <input type="text" id="signupUsername" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-lock-alt icon'></i>
+                        <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" required>
+                        <i class='bx bx-hide show-hide-icon' id="toggleSignupPassword"></i>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-check-shield icon'></i>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="sign-in-btn">Create Account</button>
+                    <div class="links">
+                        <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i id="toast-icon" class='bx bx-check-circle'></i>
+        <span id="toast-msg">Success</span>
+    </div>
+
+    <div class="footer-copy">
+        Copyright © 2026 CodeZenithAI All rights reserved.
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

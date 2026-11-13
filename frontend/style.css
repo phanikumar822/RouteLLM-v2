@@ -1,0 +1,343 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #0f172a; /* Dark sleek background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    color: #fff;
+}
+
+.login-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circles-wrapper {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    animation: rotate 20s linear infinite;
+    z-index: 0;
+}
+
+.circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 15px currentColor);
+}
+
+/* Neon glow colors */
+.circle:nth-child(1) {
+    color: #ff2a7a;
+    border-color: currentColor;
+    animation: pulse1 4s ease-in-out infinite;
+}
+
+.circle:nth-child(2) {
+    color: #ffaa00;
+    border-color: currentColor;
+    animation: pulse2 4s ease-in-out infinite 1s;
+}
+
+.circle:nth-child(3) {
+    color: #00f0ff;
+    border-color: currentColor;
+    animation: pulse3 4s ease-in-out infinite 2s;
+}
+
+.circle:nth-child(4) {
+    color: #39ff14;
+    border-color: currentColor;
+    animation: pulse4 4s ease-in-out infinite 3s;
+}
+
+/* Updated pulse animations with more dynamic morphing */
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse1 {
+    0%, 100% { border-radius: 45% 55% 48% 52% / 42% 48% 52% 58%; transform: translate(-50%, -50%) scale(0.9); }
+    50% { border-radius: 58% 42% 55% 45% / 48% 62% 38% 52%; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes pulse2 {
+    0%, 100% { border-radius: 55% 45% 58% 42% / 52% 48% 52% 48%; transform: translate(-50%, -50%) scale(0.95); }
+    50% { border-radius: 42% 58% 45% 55% / 48% 60% 40% 52%; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes pulse3 {
+    0%, 100% { border-radius: 40% 60% 52% 48% / 45% 55% 45% 55%; transform: translate(-50%, -50%) scale(0.92); }
+    50% { border-radius: 60% 40% 58% 42% / 52% 48% 52% 48%; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes pulse4 {
+    0%, 100% { border-radius: 48% 52% 55% 45% / 50% 50% 50% 50%; transform: translate(-50%, -50%) scale(0.98); }
+    50% { border-radius: 38% 62% 52% 48% / 52% 48% 52% 48%; transform: translate(-50%, -50%) scale(1.15); }
+}
+
+/* Glassmorphism Login Box */
+.login-box {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+    padding: 45px 40px;
+    border-radius: 24px;
+    width: 380px;
+}
+
+h2 {
+    color: #fff;
+    margin-bottom: 5px;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 35px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.input-group .icon {
+    position: absolute;
+    top: 50%;
+    left: 18px;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 20px;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+input {
+    width: 100%;
+    padding: 15px 20px 15px 48px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    outline: none;
+    position: relative;
+}
+
+input::placeholder {
+    color: #888;
+}
+
+input:focus {
+    border-color: #00f0ff;
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.input-group:focus-within .icon {
+    color: #00f0ff;
+}
+
+.show-hide-icon {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+.show-hide-icon:hover {
+    color: #fff;
+}
+
+.options-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 13px;
+    color: #bbb;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.remember input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    outline: none;
+}
+
+.remember input[type="checkbox"]:checked {
+    background: #00f0ff;
+    border-color: #00f0ff;
+}
+
+.remember input[type="checkbox"]:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.options-group a {
+    color: #00f0ff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.options-group a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.sign-in-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00f0ff, #ff2a7a);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.sign-in-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 240, 255, 0.5);
+    background: linear-gradient(135deg, #ff2a7a, #00f0ff);
+}
+
+.sign-in-btn:active {
+    transform: translateY(0);
+}
+
+.links {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #bbb;
+}
+
+.links a {
+    color: #00f0ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.links a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer-copy {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    z-index: 10;
+}
+
+/* Toast styling */
+.toast {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 4px solid #00f0ff;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+    transform: translateX(150%);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.error {
+    border-left-color: #ff2a7a;
+}
+
+.toast.error i {
+    color: #ff2a7a;
+}
+
+.toast.success i {
+    color: #00f0ff;
+}
+
+.toast i {
+    font-size: 24px;
+}
