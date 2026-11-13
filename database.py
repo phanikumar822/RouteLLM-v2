@@ -24,7 +24,19 @@ def init_db():
 
     try:
         from pymongo import MongoClient
-        _client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=2000)
+        import certifi
+
+        # Configure MongoClient with certifi CA bundle and standard Atlas timeout
+        mongo_kwargs = {
+            "serverSelectionTimeoutMS": 5000,
+            "tls": True if "mongodb+srv://" in MONGODB_URI or "ssl=true" in MONGODB_URI.lower() else False,
+        }
+        try:
+            mongo_kwargs["tlsCAFile"] = certifi.where()
+        except Exception:
+            pass
+
+        _client = MongoClient(MONGODB_URI, **mongo_kwargs)
         # Verify connection by pinging admin
         _client.admin.command("ping")
         _db = _client[MONGODB_DB_NAME]
